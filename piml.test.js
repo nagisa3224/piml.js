@@ -54,8 +54,9 @@ describe("Piml", () => {
                 features: ["auth", "logging", "metrics"],
             }
             const expected = `
-(description) This is a
-multi-line description.
+(description)
+  This is a
+  multi-line description.
 (database)
   (host) localhost
   (port) 5432
@@ -73,6 +74,18 @@ multi-line description.
 `
             expect(piml.stringify(obj).trim()).toBe(expected.trim())
         })
+
+        it("should stringify a multiline string", () => {
+            const obj = {
+                message: "Hello\nWorld",
+            };
+            const expected = `
+(message)
+  Hello
+  World
+`;
+            expect(piml.stringify(obj).trim()).toBe(expected.trim());
+        });
     })
 
     describe("parse", () => {
@@ -234,6 +247,25 @@ multi-line description.
                 host: "localhost",
                 port: 5432,
                 description: "This is a multi-line string. # Comments are allowed here\n# And on their own line.\nEven with weird indentation.",
+            }
+            expect(piml.parse(pimlString)).toEqual(expected)
+        })
+
+        it("should empty lines in multiline comments", () => {
+            const pimlString = `
+# This is a full-line comment
+(host) localhost # This is an inline comment
+# Another comment
+(port) 5432
+(description)
+  First line.
+  
+  Third line.
+`
+            const expected = {
+                host: "localhost",
+                port: 5432,
+                description: "First line.\nThird line.",
             }
             expect(piml.parse(pimlString)).toEqual(expected)
         })

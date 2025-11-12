@@ -58,6 +58,15 @@ class Piml {
             type === "boolean"
         ) {
             const s = String(value)
+            if (s.includes('\n')) {
+                const lines = s.split('\n');
+                let result = '\n';
+                const multiLineIndentStr = "  ".repeat(indent + 1);
+                for (const line of lines) {
+                    result += `${multiLineIndentStr}${line}\n`;
+                }
+                return result;
+            }
             if (inArray) {
                 return `${indentStr}> ${s}\n`
             }
@@ -167,12 +176,14 @@ class Piml {
                             parent[key] = newObj;
                             stack.push({ indent: indent, obj: newObj });
                         } else {
-                            let multiLine = '';
+                            const multiLineParts = [];
                             while (j < lines.length && (lines[j].length - lines[j].trimStart().length > indent || lines[j].trim() === '')) {
-                                multiLine += lines[j].substring(indent + 2) + '\n';
+                                if (lines[j].trim() !== '') {
+                                    multiLineParts.push(lines[j].substring(indent + 2));
+                                }
                                 j++;
                             }
-                            parent[key] = multiLine.trim();
+                            parent[key] = multiLineParts.join('\n');
                             i = j - 1;
                         }
                     } else {
