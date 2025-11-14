@@ -9,44 +9,33 @@
 -   **Complex Types:** Handles objects and arrays.
 -   **Nil Handling:** Explicitly represents `null`.
 -   **Multi-line Strings:** Supports multi-line string values with indentation.
--   **Comments:** Allows single-line and inline comments using `#`.
+-   **Comments:** Allows single-line comments using `#`.
+-   **Escaping:** Allows escaping of the `#` character in multi-line strings.
 -   **Date Support:** Stringifies and parses `Date` objects using ISO 8601 format.
 
 ## PIML Format Overview
 
 PIML uses a simple key-value structure. Keys are enclosed in parentheses `()`, and values follow. Indentation defines nesting.
 
+### Comments
+
+PIML supports single-line comments starting with `#`.
+
 ```piml
-(site_name) PIML Demo
-(port) 8080
-(is_production) false
-(version) 1.2
+# This is a comment
+(key) value
+```
 
-(database)
-  (host) localhost
-  (port) 5432
+**Note:** Inline comments are not supported. A `#` character in the middle of a line is treated as part of the value.
 
-(admins)
-  > (item)
-    (id) 1
-    (name) Alice
-  > (item)
-    (id) 2
-    (name) Bob
+### Escaping
 
-(features)
-  > auth
-  > logging
-  > metrics
+In multi-line strings, you can escape a `#` character at the beginning of a line with a backslash (`\`) to prevent it from being treated as a comment.
 
+```piml
 (description)
-  This is a sample product description.
-  It spans multiple lines.
-
-  With an empty line in between.
-
-(metadata)
-(related_ids) nil
+  This is a multi-line string.
+  \# This is not a comment.
 ```
 
 ## Installation

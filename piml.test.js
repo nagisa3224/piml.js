@@ -238,14 +238,14 @@ describe("Piml", () => {
   Even with weird indentation.
 `
             const expected = {
-                host: "localhost",
+                host: "localhost # This is an inline comment",
                 port: 5432,
                 description: "This is a multi-line string. # Comments are allowed here\n# And on their own line.\nEven with weird indentation.",
             }
             expect(parse(pimlString)).toEqual(expected)
         })
 
-        it("should empty lines in multiline comments", () => {
+        it("should handle multiline strings with empty lines", () => {
             const pimlString = `
 # This is a full-line comment
 (host) localhost # This is an inline comment
@@ -257,9 +257,22 @@ describe("Piml", () => {
   Third line.
 `
             const expected = {
-                host: "localhost",
+                host: "localhost # This is an inline comment",
                 port: 5432,
-                description: "First line.\nThird line.",
+                description: "First line.\n\nThird line.",
+            }
+            expect(parse(pimlString)).toEqual(expected)
+        })
+
+        it("should handle escaped comments in multiline strings", () => {
+            const pimlString = `
+(description)
+  Line 1
+  \\# This is not a comment
+  Line 3
+`
+            const expected = {
+                description: "Line 1\n# This is not a comment\nLine 3",
             }
             expect(parse(pimlString)).toEqual(expected)
         })
@@ -309,6 +322,19 @@ describe("Piml", () => {
                 features: ["auth", "logging", "metrics"],
             }
             expect(parse(pimlString)).toEqual(expected)
+        })
+
+        it("should correctly handle from/to JSON conversion with new rules", () => {
+            const obj = {
+                "description": "Line 1\n\n# This is not a comment\nLine 3",
+                "host": "localhost # This is not a valid comment",
+                "port": 5432,
+            }
+
+            const pimlString = stringify(obj)
+            const parsedObj = parse(pimlString)
+
+            expect(parsedObj).toEqual(obj)
         })
     })
 })

@@ -63,7 +63,11 @@ class Piml {
                 let result = '\n';
                 const multiLineIndentStr = "  ".repeat(indent + 1);
                 for (const line of lines) {
-                    result += `${multiLineIndentStr}${line}\n`;
+                    let lineToPush = line;
+                    if (lineToPush.trim().startsWith('#')) {
+                        lineToPush = `\\${lineToPush}`;
+                    }
+                    result += `${multiLineIndentStr}${lineToPush}\n`;
                 }
                 return result;
             }
@@ -114,9 +118,9 @@ class Piml {
         let i = 0;
         while (i < lines.length) {
             let line = lines[i];
-            const commentIndex = line.indexOf('#');
-            if (commentIndex !== -1) {
-                line = line.substring(0, commentIndex);
+            if (line.trim().startsWith('#')) {
+                i++;
+                continue;
             }
             const trimmedLine = line.trim();
 
@@ -178,12 +182,18 @@ class Piml {
                         } else {
                             const multiLineParts = [];
                             while (j < lines.length && (lines[j].length - lines[j].trimStart().length > indent || lines[j].trim() === '')) {
-                                if (lines[j].trim() !== '') {
-                                    multiLineParts.push(lines[j].substring(indent + 2));
+                                let lineToPush = lines[j].substring(indent + 2);
+                                if (lineToPush.startsWith('\\#')) {
+                                    lineToPush = lineToPush.substring(1);
                                 }
+                                multiLineParts.push(lineToPush);
                                 j++;
                             }
-                            parent[key] = multiLineParts.join('\n');
+                            let result = multiLineParts.join('\n');
+                            if (result.endsWith('\n')) {
+                                result = result.slice(0, -1);
+                            }
+                            parent[key] = result;
                             i = j - 1;
                         }
                     } else {
