@@ -10,7 +10,7 @@ class Piml {
     encodeValue(value, indent, inArray) {
         if (value === null || value === undefined) {
             if (inArray) {
-                return null
+                return null // Should filter these out in encodeSlice if possible, or handle nicely
             }
             return " nil\n"
         }
@@ -23,6 +23,12 @@ class Piml {
         const type = typeof value
         if (type === "object") {
             if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    if (inArray) {
+                        return `${indentStr}> nil\n` // Spec doesn't strictly define empty list item, but nil works
+                    }
+                    return " nil\n"
+                }
                 let result = ""
                 if (!inArray) {
                     result += "\n"
@@ -37,6 +43,14 @@ class Piml {
                     return `${indentStr}> ${s}\n`
                 }
                 return ` ${s}\n`
+            }
+
+            const keys = Object.keys(value)
+            if (keys.length === 0) {
+                 if (inArray) {
+                    return `${indentStr}> nil\n`
+                }
+                return " nil\n"
             }
 
             if (inArray) {
@@ -57,20 +71,24 @@ class Piml {
             type === "number" ||
             type === "boolean"
         ) {
-            const s = String(value)
-            if (s.includes('\n')) {
-                const lines = s.split('\n');
-                let result = '\n';
-                const multiLineIndentStr = "  ".repeat(indent + 1);
-                for (const line of lines) {
-                    let lineToPush = line;
-                    if (lineToPush.trim().startsWith('#')) {
-                        lineToPush = `\\${lineToPush}`;
+            let s = String(value)
+            if (type === "string") {
+                if (s.includes('\n')) {
+                    const lines = s.split('\n');
+                    let result = '\n';
+                    const multiLineIndentStr = "  ".repeat(indent + 1);
+                    for (const line of lines) {
+                        let lineToPush = line;
+                        if (lineToPush.trim().startsWith('#')) {
+                            lineToPush = `\\${lineToPush}`;
+                        }
+                        result += `${multiLineIndentStr}${lineToPush}\n`;
                     }
-                    result += `${multiLineIndentStr}${lineToPush}\n`;
+                    return result;
                 }
-                return result;
+                // Removed quoting logic to comply with Spec and Go implementation
             }
+            
             if (inArray) {
                 return `${indentStr}> ${s}\n`
             }
@@ -105,7 +123,16 @@ class Piml {
 
         let result = ""
         for (const item of arr) {
-            result += this.encodeValue(item, indent, true)
+            // Check for null/undefined items and handle them as 'nil' explicitly if needed
+            // encodeValue handles them.
+            const encoded = this.encodeValue(item, indent, true);
+            if (encoded !== null) {
+                 result += encoded;
+            } else {
+                // If encodeValue returned null (shouldn't happen for inArray=true with current logic except undefined)
+                let indentStr = "  ".repeat(indent)
+                result += `${indentStr}> nil\n`
+            }
         }
         return result
     }
@@ -118,10 +145,15 @@ class Piml {
         let i = 0;
         while (i < lines.length) {
             let line = lines[i];
+            // Skip comment lines
             if (line.trim().startsWith('#')) {
                 i++;
                 continue;
             }
+            
+            // Check for escaped hash at start of line (unlikely in root, but possible in values)
+            // But here we are parsing structure.
+            
             const trimmedLine = line.trim();
 
             if (trimmedLine === '') {
@@ -139,23 +171,56 @@ class Piml {
 
             if (trimmedLine.startsWith('>')) {
                 const valueStr = trimmedLine.substring(1).trim();
-                if (valueStr.startsWith('(')) {
-                    const newObj = {};
-                    if (!Array.isArray(parent)) {
-                        i++;
-                        continue;
+                
+                // Logic to distinguish object item vs string item
+                // > (item)
+                //   (key) val
+                
+                // Check if the current line looks like an object start > (key)
+                let looksLikeObjectStart = false;
+                if (valueStr.startsWith('(') && valueStr.endsWith(')')) {
+                     // It is just > (key), no value on this line.
+                     // It *could* be a string "(key)", OR the start of an object.
+                     // We check if the next line is indented relative to THIS line.
+                     // The indent of this line is `indent`.
+                     // The children should be `> indent`.
+                     
+                     let j = i + 1;
+                     while (j < lines.length) {
+                         const nextLine = lines[j];
+                         if (nextLine.trim() === '' || nextLine.trim().startsWith('#')) {
+                             j++;
+                             continue;
+                         }
+                         const nextIndent = nextLine.length - nextLine.trimStart().length;
+                         if (nextIndent > indent) {
+                             looksLikeObjectStart = true;
+                         }
+                         break;
+                     }
+                }
+                
+                // Also check > (item) ... with no indentation check if strictly following spec convention?
+                // Spec: "The (item_key) is considered metadata... A parser must ignore this key and simply interpret the indented block as an object"
+                
+                if (looksLikeObjectStart) {
+                     const newObj = {};
+                     if (!Array.isArray(parent)) {
+                        // Error or ignore?
+                        i++; continue; 
                     }
                     parent.push(newObj);
                     stack.push({ indent: indent, obj: newObj });
                     i++;
                 } else {
-                    if (!Array.isArray(parent)) {
-                        i++;
-                        continue;
+                     if (!Array.isArray(parent)) {
+                        i++; continue;
                     }
+                    // It's a primitive value (string, number, nil, etc.)
                     parent.push(this.parseValue(valueStr));
                     i++;
                 }
+
             } else if (trimmedLine.startsWith('(')) {
                 const keyMatch = trimmedLine.match(/^\((.*?)\)(.*)/);
                 if (!keyMatch) {
@@ -166,45 +231,97 @@ class Piml {
                 const valueStr = keyMatch[2].trim();
 
                 if (valueStr === '') {
+                    // Check if it's a nested object/array or multiline string or empty string
                     let j = i + 1;
-                    let nextLine = j < lines.length ? lines[j] : '';
-                    let nextIndent = nextLine.length - nextLine.trimStart().length;
+                    let nextLine = '';
+                    let nextIndent = 0;
+                    
+                    let lookaheadIndex = j;
+                    while(lookaheadIndex < lines.length) {
+                         const l = lines[lookaheadIndex];
+                         if (l.trim() !== '' && !l.trim().startsWith('#')) {
+                             nextLine = l;
+                             nextIndent = l.length - l.trimStart().length;
+                             break;
+                         }
+                         lookaheadIndex++;
+                    }
+                    
+                    if (lookaheadIndex === lines.length || nextIndent <= indent) {
+                         // No indented children -> Empty string (or null? Spec says nil for null. Empty string is "")
+                         // But wait, if I have `(key)` and nothing else, it's effectively empty string.
+                         parent[key] = '';
+                         i++;
+                         continue;
+                    }
 
-                    if (j < lines.length && nextIndent > indent) {
+                    if (nextIndent > indent) {
                         if (nextLine.trim().startsWith('>')) {
+                            // Array
                             const newArr = [];
                             parent[key] = newArr;
                             stack.push({ indent: indent, obj: newArr });
+                            i++; 
                         } else if (nextLine.trim().startsWith('(')) {
+                            // Object
                             const newObj = {};
                             parent[key] = newObj;
                             stack.push({ indent: indent, obj: newObj });
+                            i++;
                         } else {
+                            // Multiline string
                             const multiLineParts = [];
-                            while (j < lines.length && (lines[j].length - lines[j].trimStart().length > indent || lines[j].trim() === '')) {
-                                let lineToPush = lines[j].substring(indent + 2);
-                                if (lineToPush.startsWith('\\#')) {
-                                    lineToPush = lineToPush.substring(1);
+                            j = i + 1;
+                            while (j < lines.length) {
+                                let currentLine = lines[j];
+                                // Handle blank lines in multiline string
+                                if (currentLine.trim() === '') {
+                                     // Check if we passed the block
+                                     // Peek next non-blank line
+                                     // This is expensive/complex. 
+                                     // Simple heuristic: If it's blank, include it as newline. 
+                                     // We trim trailing blank lines later if needed.
+                                     multiLineParts.push(''); // Add empty line
+                                     j++;
+                                     continue;
+                                }
+                                
+                                const currentIndent = currentLine.length - currentLine.trimStart().length;
+                                if (currentIndent <= indent) break;
+
+                                let lineToPush = currentLine.substring(indent + 2); // Assume 2-space offset from parent key
+                                // Safe guard if indent is different
+                                if (lineToPush === undefined) lineToPush = currentLine.trim();
+
+                                if (lineToPush.trim().startsWith('\\#')) {
+                                    // Handle escaping of # at start of line
+                                     const trimIdx = lineToPush.indexOf('\\#');
+                                     if (trimIdx !== -1 && lineToPush.substring(0, trimIdx).trim() === '') {
+                                         // only replace if it's the start of content
+                                         lineToPush = lineToPush.replace('\\#', '#');
+                                     }
                                 }
                                 multiLineParts.push(lineToPush);
                                 j++;
                             }
-                            let result = multiLineParts.join('\n');
-                            if (result.endsWith('\n')) {
-                                result = result.slice(0, -1);
+                            // Join
+                            // Trim trailing empty lines from multiLineParts
+                            while (multiLineParts.length > 0 && multiLineParts[multiLineParts.length - 1] === '') {
+                                multiLineParts.pop();
                             }
+                            let result = multiLineParts.join('\n');
+                            // Trim trailing newlines from the string itself? Spec says "preserved". 
+                            // But usually trailing newline of the block is implicit.
                             parent[key] = result;
-                            i = j - 1;
+                            i = j;
                         }
-                    } else {
-                        parent[key] = '';
-                    }
-                    i++;
+                    } 
                 } else {
                     parent[key] = this.parseValue(valueStr);
                     i++;
                 }
             } else {
+                // Unknown line type
                 i++;
             }
         }
@@ -216,18 +333,27 @@ class Piml {
         if (valueStr === 'nil') {
             return null;
         }
+        // Support legacy/robustness
+        if (valueStr === '{}') return {}; // Spec violation but useful for reading old files? Or maybe just return null? Let's keep for now.
+        if (valueStr === '[]') return [];
+
         if (!isNaN(valueStr) && valueStr.trim() !== '') {
             return Number(valueStr);
         }
-        if (valueStr === 'true') {
-            return true;
+        if (valueStr === 'true') return true;
+        if (valueStr === 'false') return false;
+        
+        // Date parsing
+        const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+        if (isoDateRegex.test(valueStr)) {
+            const date = new Date(valueStr);
+            if (!isNaN(date.getTime())) {
+                return date;
+            }
         }
-        if (valueStr === 'false') {
-            return false;
-        }
+        
         return valueStr;
     }
-
 }
 
 const piml = new Piml()

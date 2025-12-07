@@ -1,4 +1,4 @@
-const { stringify, parse } = require("./piml.js")
+const { stringify, parse } = require("../piml.js")
 
 describe("Piml", () => {
     describe("stringify", () => {
@@ -27,7 +27,7 @@ describe("Piml", () => {
             }
             const expected = `
 (admin) nil
-(features)
+(features) nil
 (aliases) nil
 (site_name) Test
 `
@@ -135,10 +135,10 @@ describe("Piml", () => {
   > example
 (revisions)
   > (item)
-    (timestamp) 2023-10-27T10:00:00Z
+    (timestamp) 2023-10-27T10:00:00.000Z
     (notes) Initial draft.
   > (item)
-    (timestamp) 2023-10-28T14:30:00Z
+    (timestamp) 2023-10-28T14:30:00.000Z
     (notes) Added author info and tags.
 (metadata) nil
 (related_ids) nil
@@ -162,11 +162,11 @@ describe("Piml", () => {
   ],
   "revisions": [
     {
-      "timestamp": "2023-10-27T10:00:00Z",
+      "timestamp": "2023-10-27T10:00:00.000Z",
       "notes": "Initial draft."
     },
     {
-      "timestamp": "2023-10-28T14:30:00Z",
+      "timestamp": "2023-10-28T14:30:00.000Z",
       "notes": "Added author info and tags."
     }
   ],
@@ -177,7 +177,7 @@ describe("Piml", () => {
             const pimlObject = parse(pimlData)
             const jsonObject = JSON.parse(jsonData)
 
-            // Normalize pimlObject to match jsonObject
+            // Normalize pimlObject to match jsonObject expectations
             if (pimlObject.metadata === null) {
                 pimlObject.metadata = {}
             }
@@ -187,6 +187,11 @@ describe("Piml", () => {
             if (pimlObject.revisions) {
                 pimlObject.revisions = pimlObject.revisions.map(r => r.item || r);
             }
+            
+            // Adjust JSON object to match PIML's native Date objects
+            jsonObject.revisions.forEach(r => {
+                r.timestamp = new Date(r.timestamp);
+            });
 
 
             expect(pimlObject).toEqual(jsonObject)
